@@ -1,7 +1,8 @@
 const router = require('express').Router();
 const res = require('express/lib/response');
-const { Post, User } = require('../../models');
+const { Post, User, Vote } = require('../../models');
 const { post } = require('./user-routes');
+const sequelize = require('../../config/connection');
 
 // get all users
 
@@ -64,6 +65,19 @@ router.post('/', (req, res) => {
         res.status(500).json(err);
     });
 });
+
+// PUT api/posts/upvote(update the post to include the upvote)
+// positioning this here is important because express will think the word
+// "upvote" is a valid parameter for /:id.
+router.put('/upvote', (req, res) => {
+    // custom static method created in models/Post.js
+    Post.upvote(req.body, { Vote })
+      .then(updatedPostData => res.json(updatedPostData))
+      .catch(err => {
+        console.log(err);
+        res.status(400).json(err);
+      });
+  });
 
 router.put('/:id', (req, res) => {
     Post.update(
